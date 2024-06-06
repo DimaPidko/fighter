@@ -1,5 +1,7 @@
 import createElement from '../helpers/domHelper';
 import { createFighterImage } from './fighterPreview';
+import { fight } from './fight';
+import showWinnerModal from './modal/winner.js';
 
 function createFighter(fighter, position) {
     const imgElement = createFighterImage(fighter);
@@ -47,26 +49,20 @@ function createHealthIndicators(leftFighter, rightFighter) {
     const rightFighterIndicator = createHealthIndicator(rightFighter, 'right');
 
     healthIndicators.append(leftFighterIndicator, versusSign, rightFighterIndicator);
+
     return healthIndicators;
 }
 
-function createArena(selectedFighters) {
+export default async function renderArena(selectedFighters) {
+    const root = document.getElementById('root');
     const arena = createElement({ tagName: 'div', className: 'arena___root' });
-    const healthIndicators = createHealthIndicators(...selectedFighters);
     const fighters = createFighters(...selectedFighters);
+    const healthIndicators = createHealthIndicators(...selectedFighters);
 
     arena.append(healthIndicators, fighters);
-    return arena;
-}
-
-export default function renderArena(selectedFighters) {
-    const root = document.getElementById('root');
-    const arena = createArena(selectedFighters);
-
     root.innerHTML = '';
     root.append(arena);
 
-    // todo:
-    // - start the fight
-    // - when fight is finished show winner
+    const winner = await fight(...selectedFighters);
+    showWinnerModal(winner);
 }
